@@ -1,0 +1,100 @@
+/* Database Creation */
+CREATE DATABASE healthcarePatientSatisfaction;
+
+/* Ensuring the data was imported correctly */
+SELECT *
+FROM healthcarePatientSatisfaction.patientSatisfaction2016;
+
+SELECT *
+FROM healthcarePatientSatisfaction.patientSatisfaction2017;
+
+SELECT *
+FROM healthcarePatientSatisfaction.patientSatisfaction2018;
+
+SELECT *
+FROM healthcarePatientSatisfaction.patientSatisfaction2019;
+
+SELECT *
+FROM healthcarePatientSatisfaction.patientSatisfaction2020;
+
+/* Cleaning the Data */
+SELECT *
+FROM healthcarePatientSatisfaction.patientSatisfaction2016
+WHERE coalesce(`Facility ID`, `Facility Name`) IS NULL;
+
+SELECT *
+FROM healthcarePatientSatisfaction.patientSatisfaction2017
+WHERE coalesce(`Facility ID`, `Facility Name`) IS NULL;
+
+SELECT *
+FROM healthcarePatientSatisfaction.patientSatisfaction2018
+WHERE coalesce(`Facility ID`, `Facility Name`) IS NULL;
+
+SELECT *
+FROM healthcarePatientSatisfaction.patientSatisfaction2019
+WHERE coalesce(`Facility ID`, `Facility Name`) IS NULL;
+
+SELECT *
+FROM healthcarePatientSatisfaction.patientSatisfaction2020
+WHERE coalesce(`Facility ID`, `Facility Name`) IS NULL;
+
+/* Querying the patient satisfaction over the years across all hospitals */
+SELECT 
+    Year,
+    AVG(`Patient Survey Star Rating`) AS AverageRating
+FROM 
+    (
+        SELECT Year, `Patient Survey Star Rating`
+        FROM healthcarePatientSatisfaction.patientSatisfaction2016
+        UNION ALL
+        SELECT Year, `Patient Survey Star Rating`
+        FROM healthcarePatientSatisfaction.patientSatisfaction2017
+        UNION ALL
+        SELECT Year, `Patient Survey Star Rating`
+        FROM healthcarePatientSatisfaction.patientSatisfaction2018
+        UNION ALL
+        SELECT Year, `Patient Survey Star Rating`
+        FROM healthcarePatientSatisfaction.patientSatisfaction2019
+        UNION ALL
+        SELECT Year, `Patient Survey Star Rating`
+        FROM healthcarePatientSatisfaction.patientSatisfaction2020
+    ) AS AllYears
+GROUP BY Year
+ORDER BY 1;
+
+/* Average Patient Satisfaction Ratings by state in 2020 */
+SELECT AVG(`Patient Survey Star Rating`) AS AverageRating, State
+FROM healthcarePatientSatisfaction.patientSatisfaction2020
+GROUP BY State
+ORDER BY 1;
+
+/* Comparing Hospital Ratings in 2020 */
+SELECT AVG(`Patient Survey Star Rating`) AS AverageRating, `Facility Name`
+FROM healthcarePatientSatisfaction.patientSatisfaction2020
+GROUP BY `Facility Name`
+ORDER BY 1;
+
+/* Correlation Analysis */ 
+/* Does Hotel Ownership coorelate to overall hospital rating in 2020 */
+SELECT `Hospital Ownership`, AVG(`Hospital overall rating`) AS hospitalRating
+FROM healthcarePatientSatisfaction.patientSatisfaction2020
+GROUP BY `Hospital Ownership`
+ORDER BY 2;
+
+/* Does having emergnecy services affect a hospitals ranking in 2020 */
+SELECT `Emergency Services`, AVG(`Hospital overall rating`) AS hospitalRating
+FROM healthcarePatientSatisfaction.patientSatisfaction2020
+GROUP BY `Emergency Services`
+ORDER BY 2;
+
+/* Does timeliness have an affect on a hospitals ranking 2020 */
+SELECT `Timeliness of care national comparison`, AVG(`Hospital overall rating`) AS hospitalRating
+FROM healthcarePatientSatisfaction.patientSatisfaction2020
+GROUP BY `Timeliness of care national comparison`
+ORDER BY 2;
+
+/* Does Hospital Type have an affect on a hospitals ranking 2020 */
+SELECT `Hospital Type`, AVG(`Hospital overall rating`) AS hospitalRating
+FROM healthcarePatientSatisfaction.patientSatisfaction2020
+GROUP BY `Hospital Type`
+ORDER BY 2;
