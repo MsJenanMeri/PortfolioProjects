@@ -1,0 +1,54 @@
+/* Ensuring Data was imported correctly */
+SELECT *
+FROM citybudget.cityfinances;
+
+/* Cleaning the data */
+SELECT *
+FROM citybudget.cityfinances
+WHERE cityfinances.index IS NULL;
+
+SELECT *
+FROM citybudget.cityfinances
+WHERE cityfinances.fund IS NULL;
+
+SELECT *
+FROM citybudget.cityfinances
+WHERE `Acct-Type` IS NULL;
+
+SELECT *
+FROM citybudget.cityfinances
+WHERE `Acct-Dept` IS NULL;
+
+SELECT *
+FROM citybudget.cityfinances
+WHERE `Summ-Acct` IS NULL;
+
+/* Budget per department in 2021*/
+SELECT `Acct-Dept` AS Department, SUM(`2021-Budget`) AS Budget
+FROM citybudget.cityfinances
+GROUP BY 1
+ORDER BY 2 DESC
+LIMIT 5;
+
+/* Comparing the revenue generated for all departments across the years */
+SELECT SUM(`2019-Actual`) AS 2020_Revenue, SUM(`2020-Actual`) AS 2021_Revenue
+FROM citybudget.cityfinances
+WHERE `Acct-Type` = "Revenues";
+
+/* Identifying top performing departments based on revenue in 2020 */
+SELECT `Acct-Dept` AS Department, SUM(`2020-Actual`) AS Revenue
+FROM citybudget.cityfinances
+WHERE `Acct-Type` = "Revenues"
+GROUP BY 1
+HAVING SUM(`2020-Actual`) != 0
+ORDER BY 2 DESC
+LIMIT 5; 
+
+/* Determining the cost/benefit analysis of departments expenses in 2020 */
+SELECT `Acct-Dept` AS Department, SUM(`2020-Actual`) AS Expenses
+FROM citybudget.cityfinances
+WHERE `Acct-Type` = "Expenses"
+GROUP BY 1
+ORDER BY 2 DESC
+LIMIT 5;
+
