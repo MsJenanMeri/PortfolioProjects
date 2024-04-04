@@ -1,0 +1,53 @@
+
+/* In this SQL File, I am querying a database 
+to quantify statistics about a local government's HR Department in order
+to undertand why employees leave and how to prevent that. 
+*/
+
+-- Selecting all the data in order to verify my table 
+SELECT *
+FROM employee.hr_analytics;
+
+-- Selecting data to find the attrition rates of employees
+SELECT 
+    DistanceFromHome AS Distance_From_Home,
+    SUM(CASE WHEN Attrition = 'Yes' THEN 1 ELSE 0 END) AS EmployeesLeft,
+    SUM(CASE WHEN Attrition = 'No' THEN 1 ELSE 0 END) AS EmployeesStayed,
+    100.0 * SUM(CASE WHEN Attrition = 'Yes' THEN 1 ELSE 0 END) / COUNT(*) AS Attrition_Percentage
+FROM employee.hr_analytics
+GROUP BY DistanceFromHome
+ORDER BY DistanceFromHome;
+
+-- Counting the number of employees in certain age groups
+SELECT AgeGroup, COUNT(*) as NumberOfEmployees
+FROM employee.hr_analytics
+GROUP BY AgeGroup;
+
+-- Finding the distance from work that employees live from work and 
+-- how many of them stay vs leave based on distance
+SELECT 
+    CASE WHEN DistanceFromHome IN (1,2,3,4,5) THEN "1 - 5 Miles"
+		 WHEN DistanceFromHome IN (6,7,8,9,10) THEN "6 - 10 Miles"
+         WHEN DistanceFromHome IN (11,12,13,14,15) THEN "11 - 15 Miles"
+         WHEN DistanceFromHome IN (16,17,18,19,20) THEN "16 - 20 Miles"
+         WHEN DistanceFromHome IN (21,22,23,24,25) THEN "21 - 25 Miles"
+         ELSE "26 - 29 Miles"
+         END AS Distance,
+    SUM(CASE WHEN Attrition = 'Yes' THEN 1 ELSE 0 END) AS EmployeesLeft,
+    SUM(CASE WHEN Attrition = 'No' THEN 1 ELSE 0 END) AS EmployeesStayed
+FROM employee.hr_analytics
+GROUP BY distance;
+
+-- Finding the amount of employees who leave per department
+SELECT COUNT(Attrition) AS Leavers, Department
+FROM employee.hr_analytics
+WHERE Attrition = 'Yes'
+GROUP BY Department;
+
+-- Selecting employees and finding how many of them 
+-- leave and what their job satisfacrtion is
+SELECT COUNT(Attrition) AS Leavers, JobSatisfaction
+FROM employee.hr_analytics
+WHERE Attrition = 'Yes'
+GROUP BY JobSatisfaction
+ORDER BY 2;
