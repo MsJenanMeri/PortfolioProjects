@@ -1,0 +1,76 @@
+/* Ensuring Data was imported correctly */
+SELECT *
+FROM businessprocess.processesMetrics;
+
+/* Cleaning the Data */
+SELECT *
+FROM businessprocess.processesMetrics
+WHERE processesMetrics.team IS NULL;
+
+SELECT *
+FROM businessprocess.processesMetrics
+WHERE processesMetrics.targeted_productivity IS NULL;
+
+SELECT *
+FROM businessprocess.processesMetrics
+WHERE processesMetrics.smv IS NULL;
+
+SELECT *
+FROM businessprocess.processMetrics
+WHERE processMetrics.wip IS NULL;
+
+SELECT *
+FROM businessprocess.processesMetrics
+WHERE processesMetrics.over_time IS NULL;
+
+SELECT *
+FROM businessprocess.processesMetrics
+WHERE processesMetrics.incentive IS NULL;
+
+/* Daily Targeted Productivity vs Actual Productivity */
+WITH weeklyProductivity AS (
+SELECT AVG(processesMetrics.targeted_productivity) AS targeted_productivity, AVG(processesMetrics.actual_productivity) AS actual_productivity,
+	CASE WHEN processesMetrics.day_Monday = 1 THEN 'Monday'
+		 WHEN processesMetrics.day_Tuesday = 1 THEN 'Tuesday'
+         WHEN processesMetrics.day_Wednesday = 1 THEN 'Wednesday'
+         WHEN processesMetrics.day_Thursday = 1 THEN 'Thursday'
+    END AS Day_Of_Week
+FROM businessprocess.processesMetrics
+GROUP BY 3)
+SELECT Day_Of_Week, targeted_productivity, actual_productivity
+FROM weeklyProductivity
+WHERE Day_Of_Week IS NOT NULL;
+
+/* Productivity Levels across Departments */
+SELECT processesMetrics.team, AVG(processesMetrics.actual_productivity) AS productivity
+FROM businessprocess.processesMetrics
+GROUP BY 1
+ORDER BY 2 DESC
+LIMIT 6;
+
+/* Productivity across Quarters */
+WITH quarterProductivity AS (
+SELECT AVG(processesMetrics.actual_productivity) AS actual_productivity,
+	CASE WHEN processesMetrics.quarter_Quarter1 = 1 THEN 'Q1'
+		 WHEN processesMetrics.quarter_Quarter2 = 1 THEN 'Q2'
+         WHEN processesMetrics.quarter_Quarter3 = 1 THEN 'Q3'
+         WHEN processesMetrics.quarter_Quarter4 = 1 THEN 'Q4'
+         WHEN processesMetrics.quarter_Quarter5 = 1 THEN 'Q5'
+    END AS quarter
+FROM businessprocess.processesMetrics
+GROUP BY 2)
+SELECT quarter, actual_productivity
+FROM quarterProductivity;
+
+/* Identifying teams who go over time the most */
+SELECT processesMetrics.team, SUM(processesMetrics.over_time) AS overTime
+FROM businessprocess.processesMetrics
+GROUP BY 1
+ORDER BY 2
+LIMIT 6;
+
+/* Looking for the impact of work in progress on productivity */
+SELECT processesMetrics.wip, processesMetrics.actual_productivity
+FROM businessprocess.processesMetrics
+ORDER BY 1 DESC
+LIMIT 6;
